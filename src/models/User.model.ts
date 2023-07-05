@@ -1,6 +1,10 @@
+import axios, { AxiosResponse } from 'axios';
+import { API_HOST } from './../util/api';
+
 interface UserProps {
   name?: string;
   age?: number;
+  id?: number;
 }
 
 interface Event {
@@ -40,6 +44,11 @@ class User {
     }
 
     handlers.forEach(callback => callback());
+  }
+
+  public fetch() : void {
+    axios.get(`${API_HOST}/users/${this.get('id')}`)
+      .then((res: AxiosResponse): void => this.set(res.data));
   }
 }
 

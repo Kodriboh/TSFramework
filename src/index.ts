@@ -1,7 +1,7 @@
-import User from "./models/User.model";
+import User from './models/User.model';
 
-const user = new User({});
+const user1 = new User({ id: 1 });
 
-user.on('click', async () => console.log(123));
+const retrievedUser = user1.fetch();
 
-user.trigger('click');
+console.log(retrievedUser);
