@@ -50,6 +50,15 @@ class User {
     axios.get(`${API_HOST}/users/${this.get('id')}`)
       .then((res: AxiosResponse): void => this.set(res.data));
   }
+
+  public save() : void {
+    const id = this.get('id');
+    if (id) {
+      axios.put(`${API_HOST}/users/${id}`, this.data);
+      return;
+    }
+    axios.post(`${API_HOST}/users`, this.data);
+  }
 }
 
 export default User;
