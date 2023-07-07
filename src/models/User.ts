@@ -4,6 +4,7 @@ import { Sync } from './Sync';
 import { HasId } from './Sync';
 import { Attributes } from './Attributes';
 import { Callback } from './Eventing';
+import { AxiosResponse } from 'axios';
 
 interface UserProps extends HasId {
   name?: string;
@@ -22,6 +23,18 @@ class User {
   public set(data: UserProps): void {
     this.attributes.set(data);
     this.events.trigger('change');
+  }
+
+  public fetch(): void {
+    const id = this.attributes.get('id');
+
+    if (!id) {
+      throw new Error('Cannot fetch without id');
+    }
+
+    this.sync.fetch(id).then((res: AxiosResponse): void => {
+      this.set(res.data);
+    });
   }
 
   get get() {
