@@ -5,6 +5,10 @@ export class Attributes <T> {
     this.data = data;
   }
 
+  public getAll(): T {
+    return this.data;
+  }
+
   public get = <K extends keyof T>(key: K): T[K] => {
     return this.data[key];
   }

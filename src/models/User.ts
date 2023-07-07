@@ -37,6 +37,14 @@ class User {
     });
   }
 
+  public save(): void {
+    this.sync.save(this.attributes.getAll())
+      .then((res: AxiosResponse) =>
+        this.trigger('save'))
+      .catch(err =>
+        this.trigger('error'));
+  }
+
   get get() {
     return this.attributes.get;
   }
