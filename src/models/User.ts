@@ -2,6 +2,7 @@ import { API_HOST } from '../util/api';
 import { Eventing } from './Eventing';
 import { Sync } from './Sync';
 import { HasId } from './Sync';
+import { Attributes } from './Attributes';
 
 interface UserProps extends HasId {
   name?: string;
@@ -9,20 +10,12 @@ interface UserProps extends HasId {
 }
 
 class User {
-  private data: UserProps;
   private sync: Sync<UserProps> = new Sync(`${API_HOST}/users`);
   public events: Eventing = new Eventing();
+  public attributes: Attributes<UserProps>;
 
-  constructor(data: UserProps) {
-    this.data = data;
-  }
-
-  public get(propName: string): (number | string) {
-    return this.data[propName];
-  }
-
-  public set(update: UserProps): void {
-    Object.assign(this.data, update);
+  constructor (attrs: UserProps) {
+    this.attributes = new Attributes<UserProps>(attrs);
   }
 }
 
