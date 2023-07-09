@@ -13,8 +13,8 @@ interface UserProps extends HasId {
 
 class User {
   private sync: Sync<UserProps> = new Sync(`${API_HOST}/users`);
-  public events: Eventing = new Eventing();
-  public attributes: Attributes<UserProps>;
+  private events: Eventing = new Eventing();
+  private attributes: Attributes<UserProps>;
 
   constructor (attrs: UserProps) {
     this.attributes = new Attributes<UserProps>(attrs);
