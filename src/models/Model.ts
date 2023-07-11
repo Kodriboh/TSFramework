@@ -1,6 +1,10 @@
-import { Callback } from "./Eventing";
-import { AxiosPromise, AxiosResponse } from "axios";
-import { HasId } from './ApiSync';
+import { AxiosPromise, AxiosResponse } from 'axios';
+
+interface ModelAttributes<T> {
+  set(value: T): void;
+  getAll(): T;
+  get<K extends keyof T>(key: K): T[K];
+}
 
 interface Sync<T> {
   fetch(id: number): AxiosPromise;
@@ -8,61 +12,50 @@ interface Sync<T> {
 }
 
 interface Events {
-  on(eventName: string, callback: Callback): void;
+  on(eventName: string, callback: () => void): void;
   trigger(eventName: string): void;
 }
 
-interface ModelAttributes<T> {
-  getAll(): T;
-  get<K extends keyof T>(key: K): T[K];
-  set(value: T): void;
+export interface HasId {
+  id?: number;
 }
 
 export class Model<T extends HasId> {
-  private attributes: ModelAttributes<T>;
-  private events: Events;
-  private sync: Sync<T>;
+  constructor(
+    private attributes: ModelAttributes<T>,
+    private events: Events,
+    private sync: Sync<T>
+  ) {}
 
-  constructor(attributes: ModelAttributes<T>, events: Events, sync: Sync<T>) {
-    this.attributes = attributes;
-    this.events = events;
-    this.sync = sync;
-  }
+  on = this.events.on;
+  trigger = this.events.trigger;
+  get = this.attributes.get;
 
-  public set(data: T): void {
-    this.attributes.set(data);
+  set(update: T): void {
+    this.attributes.set(update);
     this.events.trigger('change');
   }
 
-  public fetch(): void {
-    const id = this.attributes.get('id');
+  fetch(): void {
+    const id = this.get('id');
 
-    if (!id) {
-      throw new Error('Cannot fetch without id');
+    if (typeof id !== 'number') {
+      throw new Error('Cannot fetch without an id');
     }
 
-    this.sync.fetch(id).then((res: AxiosResponse): void => {
-      this.set(res.data);
+    this.sync.fetch(id).then((response: AxiosResponse): void => {
+      this.set(response.data);
     });
   }
 
-  public save(): void {
-    this.sync.save(this.attributes.getAll())
-      .then((res: AxiosResponse) =>
-        this.trigger('save'))
-      .catch(err =>
-        this.trigger('error'));
-  }
-
-  get get() {
-    return this.attributes.get;
-  }
-
-  get on() {
-    return this.events.on;
-  }
-
-  get trigger() {
-    return this.events.trigger;
+  save(): void {
+    this.sync
+      .save(this.attributes.getAll())
+      .then((response: AxiosResponse): void => {
+        this.trigger('save');
+      })
+      .catch(() => {
+        this.trigger('error');
+      });
   }
 }

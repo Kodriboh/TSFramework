@@ -1,26 +1,23 @@
-export type Callback = () => void;
-
-interface Event {
-  [key: string]: Callback[];
-}
+type Callback = () => void;
 
 export class Eventing {
-  private events: Event = {};
+  events: { [key: string]: Callback[] } = {};
 
-  public on = (eventName: string, callback: Callback): void => {
+  on = (eventName: string, callback: Callback): void => {
     const handlers = this.events[eventName] || [];
     handlers.push(callback);
     this.events[eventName] = handlers;
-    console.log({ events: this.events });
-  }
+  };
 
-  public trigger = (eventName: string): void => {
+  trigger = (eventName: string): void => {
     const handlers = this.events[eventName];
 
     if (!handlers || handlers.length === 0) {
       return;
     }
 
-    handlers.forEach(callback => callback());
-  }
+    handlers.forEach(callback => {
+      callback();
+    });
+  };
 }
